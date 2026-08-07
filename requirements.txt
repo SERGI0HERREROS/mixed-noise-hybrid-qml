@@ -1,0 +1,12 @@
+qiskit
+qiskit-machine-learning
+numpy
+pandas
+matplotlib
+scikit-image
+scikit-learn
+pylatexenc
+
+# Instalar PyTorch aparte según el hardware:
+# CPU:  pip install torch torchvision
+# CUDA: pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
