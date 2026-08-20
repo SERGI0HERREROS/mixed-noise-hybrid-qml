@@ -1,62 +1,61 @@
-# Expresibilidad y capacidad de entrelazamiento (Experimento E6)
+# experiment-3 — Barrido de dimensión latente y optimizadores (HQVAE)
 
-Notebooks que cuantifican la calidad intrínseca de los circuitos parametrizados (PQC)
-del pipeline de clasificación de ruido mixto del TFM, con los descriptores de:
+Rama construida sobre `experiment-2` que amplía la prueba dirigida de SPSA a
+un **estudio sistemático** sobre el testbed `test-hqvae/`: cómo afecta la
+**dimensión del espacio latente** y la **elección de optimizador** a la
+calidad de reconstrucción (MSE/PSNR/SSIM) del HQVAE de 6 qubits.
 
-> Sim, S., Johnson, P. D., & Aspuru-Guzik, A. (2019). *Expressibility and entangling
-> capability of parameterized quantum circuits for hybrid quantum-classical algorithms*.
-> **Adv. Quantum Technol.** 2, 1900070. (arXiv:1905.10876)
+## Qué aporta esta rama
 
-Marco de encoding/feature maps/kernels según el curso
-[IBM Quantum Machine Learning](https://quantum.cloud.ibm.com/learning/en/courses/quantum-machine-learning/introduction).
+- **Barrido de dimensión latente con SPSA**: se entrena la misma
+  configuración de circuito (`HQVAE6_ZZFM_RA_linear_r1`, feature map ZZ +
+  ansatz RealAmplitudes con entrelazamiento lineal) variando
+  `latent_dim ∈ {4, 8, 12}`, manteniendo el optimizador SPSA. El objetivo es
+  observar si desacoplar el espacio latente clásico del número de qubits
+  (vía el adaptador `Linear(latent_dim, n_qubits)` de `hqvae_lib.py`) afecta
+  a la fidelidad de la reconstrucción.
+- **Comparación de optimizadores a `latent_dim=12`**: sobre esa misma
+  configuración de circuito, se entrena con **Adam, AdamW, RMSprop y SPSA**
+  para contrastar optimizadores basados en gradiente end-to-end frente al
+  optimizador gradient-free (SPSA), que solo ajusta los pesos del ansatz
+  cuántico.
+- **Semilla actualizada a `SEED = 44`**, propagada igual que en
+  `experiment-2` a la carga de datos y a cada `HQVAEConfig`.
+- Se mantiene la celda de dispersión **expresibilidad/entrelazamiento (KL, Q)
+  vs. calidad de reconstrucción (SSIM, PSNR)** del barrido `default_sweep`,
+  heredada del testbed original, para relacionar los descriptores del
+  experimento E6 con el rendimiento en la tarea de denoising.
 
-## Métricas
+## Contenido relevante de esta rama
 
-- **Expresibilidad** = `D_KL( P_PQC(F) || P_Haar(F) )`, con `F=|<psi(θ)|psi(φ)>|²` y
-  `P_Haar(F)=(N-1)(1-F)^(N-2)`, `N=2^n`. **KL menor ⇒ más expresivo.**
-- **Capacidad de entrelazamiento (Meyer-Wallach)** `Q = (2/n)·Σ_k(1 - Tr ρ_k²)`,
-  promediada sobre parámetros. `Q∈[0,1]`.
-
-Ambas implementadas en `qexpr.py` con solo `qiskit.quantum_info` (sin dependencias extra).
-
-## Contenido
-
-| Fichero | Qué hace |
+| Fichero | Qué es |
 |---|---|
-| `qexpr.py` | Módulo con `build_pqc`, `sample_fidelities`, `expressibility_kl`, `meyer_wallach_Q`, `descriptors`, `paper_circuit` y ayudas de figura. |
-| `01_expressibility_entangling.ipynb` | Métricas del circuito de producción + grid E6 (`{zz,pauli}×{real_amplitudes,efficient_su2}×{4,6q}`) + saturación con `reps`. |
-| `02_paper_reference_circuits.ipynb` | Reproduce un subconjunto de los 19 circuitos del paper y valida el ranking (Q≈0 para el circuito sin entanglement, CRX≻CRZ). |
-| `03_metric_vs_accuracy.ipynb` | Entrena la HQNN (CNN+EstimatorQNN) por familia de circuito y correlaciona accuracy con expresibilidad y Q. |
+| `test-hqvae/test_hqvae.ipynb` | Notebook driver, con `SEED=44` y el run único parametrizado para explorar `latent_dim` (4/8/12) manteniendo SPSA, además de la comparación de optimizadores. |
+| `test-hqvae/results/HQVAE6_ZZFM_RA_linear_r1_spsa_4.html` | SPSA, `latent_dim=4`. |
+| `test-hqvae/results/HQVAE6_ZZFM_RA_linear_r1_spsa_8.html` | SPSA, `latent_dim=8`. |
+| `test-hqvae/results/HQVAE6_ZZFM_RA_linear_r1_spsa_12.html` | SPSA, `latent_dim=12`. |
+| `test-hqvae/results/HQVAE6_ZZFM_RA_linear_r1_adam_12.html` | Adam, `latent_dim=12`. |
+| `test-hqvae/results/HQVAE6_ZZFM_RA_linear_r1_adamw_12.html` | AdamW, `latent_dim=12`. |
+| `test-hqvae/results/HQVAE6_ZZFM_RA_linear_r1_rmsprop_12.html` | RMSprop, `latent_dim=12`. |
+
+El resto del contenido (E6, `Hybrid CQNN-VQAE.ipynb`, `hqvae_lib.py`) es el
+mismo que en `experiment-1`/`experiment-2`.
+
+## Historial de esta rama
+
+- **`first experiment finished`** *(heredado)*: base común del proyecto.
+- **`experiment-2 tested (spsa, seed 43)`** *(heredado)*: primera prueba
+  dirigida de SPSA con semilla 43.
+- **`removed before experiment html results`**: se elimina el resultado SPSA
+  de `experiment-2` antes de lanzar la nueva tanda de pruebas de esta rama.
+- **`tested different latent dims with spsa`**: añade los resultados SPSA
+  para `latent_dim ∈ {4, 8, 12}` y actualiza el notebook driver.
+- **`HQVAE6_ZZFM_RA_linear_r1_rmsprop_12`**: añade los resultados de Adam,
+  AdamW y RMSprop a `latent_dim=12`, para compararlos con SPSA.
+- **`HQVAE6_ZZFM_RA_linear_r1_spsa_12`**: recalcula/actualiza el resultado
+  SPSA a `latent_dim=12` (semilla 44) y ajusta el notebook driver.
 
 ## Entorno
 
-Requiere **Qiskit 2.3 + qiskit-machine-learning 0.9** (notebooks 01–02) y además
-**torch + torchvision** (notebook 03), tal como en `../requirements.txt` /
-`../../TFM-EXPERIMENTS/requirements.txt`.
-
-> Nota: el `../.venv` incluido apunta a un intérprete de otra máquina y no es
-> reutilizable aquí; crea un entorno nuevo (p. ej. `py -3.12 -m venv .venv` y
-> `pip install -r ../../TFM-EXPERIMENTS/requirements.txt`) o usa tu kernel habitual.
-
-## Salidas
-
-Se escriben con la convención estable `E6_*` en `../../TFM-EXPERIMENTS/outputs/`
-(la memoria `.tex` las referencia). `OUTPUT_DIR` es configurable al inicio de cada notebook.
-
-- Tablas: `E6_circuit_descriptors.csv`, `E6_expressibility.csv`, `E6_entangling.csv`,
-  `E6_paper_reference.csv`, `E6_metric_vs_accuracy.csv`.
-- Figuras (300 dpi): `E6_expressibility_bars.png`, `E6_entangling_bars.png`,
-  `E6_expressibility_vs_reps.png`, `E6_fidelity_histograms.png`,
-  `E6_paper_reference.png`, `E6_expr_vs_accuracy.png`, `E6_ent_vs_accuracy.png`.
-
-## Parámetros de ejecución
-
-`N_SAMPLES` (muestras de fidelidad; el paper usa ~5000, por defecto 2000–3000 para
-rapidez) y, en el notebook 03, `EPOCHS` y `CONFIGS`. Súbelos para las cifras finales.
-
-## Verificación realizada
-
-`qexpr.py` y la lógica de 01/02 se probaron en un entorno Qiskit 2.3.0 + qml 0.9.0:
-- Circuito de producción (zz+RealAmplitudes 4q): `D_KL≈0.06`, `Q≈0.83`.
-- Circuito 1 (sin entanglement): `Q=0.000`; CRX (14) más expresivo y más entrelazante que CRZ (13).
-- Las 6 QNN del notebook 03 se construyen y hacen `forward` con salida de 3 clases.
+Igual que en las ramas anteriores: **Qiskit 2.3 + qiskit-machine-learning 0.9**
+y **torch + torchvision**, según `requirements.txt`.
