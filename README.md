@@ -1,62 +1,91 @@
-# Expresibilidad y capacidad de entrelazamiento (Experimento E6)
+# experiment-4 — Testbed de clasificación (HQNN) y reproducibilidad multi-semilla
 
-Notebooks que cuantifican la calidad intrínseca de los circuitos parametrizados (PQC)
-del pipeline de clasificación de ruido mixto del TFM, con los descriptores de:
+Rama construida sobre `experiment-3` que separa definitivamente la
+**clasificación** de la **reconstrucción** en un testbed dedicado
+(`test-hcqnn/`), diagnostica y corrige un sesgo en la capa de lectura de la
+HQNN, y añade repeticiones multi-semilla tanto para clasificación como para
+reconstrucción de cara a la memoria del TFM.
 
-> Sim, S., Johnson, P. D., & Aspuru-Guzik, A. (2019). *Expressibility and entangling
-> capability of parameterized quantum circuits for hybrid quantum-classical algorithms*.
-> **Adv. Quantum Technol.** 2, 1900070. (arXiv:1905.10876)
+## 1. Nuevo testbed de clasificación — `test-hcqnn/`
 
-Marco de encoding/feature maps/kernels según el curso
-[IBM Quantum Machine Learning](https://quantum.cloud.ibm.com/learning/en/courses/quantum-machine-learning/introduction).
+Notebook dedicado (`Hybrid CNN-QNN.ipynb`, con una copia de trabajo
+`Hybrid CNN-QNN copy.ipynb`) que sustituye a la sección de clasificación —
+hasta entonces solo esbozada— del antiguo `Hybrid CQNN-VQAE.ipynb`
+(**eliminado en esta rama**, ya superado por este testbed y por `test-hqvae/`).
 
-## Métricas
+Estructura del notebook:
 
-- **Expresibilidad** = `D_KL( P_PQC(F) || P_Haar(F) )`, con `F=|<psi(θ)|psi(φ)>|²` y
-  `P_Haar(F)=(N-1)(1-F)^(N-2)`, `N=2^n`. **KL menor ⇒ más expresivo.**
-- **Capacidad de entrelazamiento (Meyer-Wallach)** `Q = (2/n)·Σ_k(1 - Tr ρ_k²)`,
-  promediada sobre parámetros. `Q∈[0,1]`.
+1. **Imports y semilla** para reproducibilidad.
+2. **Diagnóstico del sesgo de la QNN**: con `fc_final = nn.Identity()`, los
+   valores esperados de los observables de Pauli se usan directamente como
+   logits de `CrossEntropyLoss`. El primer observable (`ZIII + IZII`) tiene
+   rango teórico `[-2, 2]` mientras que los otros dos (`ZZII`, `IIZZ`) están
+   acotados a `[-1, 1]`; esa asimetría puede sesgar el modelo hacia la clase 0
+   independientemente de la entrada. Se comprueba empíricamente con una QNN
+   sin entrenar.
+3. **HQNN corregida**: se sustituye `fc_final = nn.Identity()` por una capa
+   entrenable `nn.Linear(len(qnn.observables), 3)` que recalibra (escala y
+   sesgo por clase) los valores esperados antes de la softmax implícita en
+   `CrossEntropyLoss`, manteniendo el resto de la arquitectura, el pipeline
+   de datos, la semilla y el protocolo de entrenamiento sin cambios.
+4. **Red clásica equivalente** como baseline: mismo extractor convolucional
+   (`conv1`, `conv2`, `fc1`) y mismo cuello de botella de dimensión 4,
+   sustituyendo el circuito variacional por una capa densa clásica
+   `nn.Linear(4, 3)`, para aislar el efecto de la capa cuántica.
+5. **Comparativa final** de las métricas de los tres modelos (HQNN original
+   con `fc_final=Identity`, HQNN corregida con `fc_final=Linear`, y baseline
+   clásico) bajo idéntico protocolo, exportada también a HTML.
 
-Ambas implementadas en `qexpr.py` con solo `qiskit.quantum_info` (sin dependencias extra).
+## Resultados (`test-hcqnn/results/`)
 
-## Contenido
+Barrido de combinaciones de **feature map** (`PFM`=Pauli, `ZZFM`=ZZ) ×
+**ansatz** (`ESU`=EfficientSU2, `RA`=RealAmplitudes) × capa de lectura
+(`fc_final=Identity` vs `fc_final=Linear`) × optimizador (`adam`, `adamw`),
+con varias repeticiones y semillas fijas (`42`–`45`) para comprobar la
+estabilidad de la corrección del sesgo:
 
-| Fichero | Qué hace |
-|---|---|
-| `qexpr.py` | Módulo con `build_pqc`, `sample_fidelities`, `expressibility_kl`, `meyer_wallach_Q`, `descriptors`, `paper_circuit` y ayudas de figura. |
-| `01_expressibility_entangling.ipynb` | Métricas del circuito de producción + grid E6 (`{zz,pauli}×{real_amplitudes,efficient_su2}×{4,6q}`) + saturación con `reps`. |
-| `02_paper_reference_circuits.ipynb` | Reproduce un subconjunto de los 19 circuitos del paper y valida el ranking (Q≈0 para el circuito sin entanglement, CRX≻CRZ). |
-| `03_metric_vs_accuracy.ipynb` | Entrena la HQNN (CNN+EstimatorQNN) por familia de circuito y correlaciona accuracy con expresibilidad y Q. |
+- `HCQNN4_PFM_full__r1_ESU_rlinear_r1_adam_fc_final=Identity/Linear(_2..._5).html`
+- `HCQNN4_ZZFM_full__r1_RA_rlinear_r1_adam_fc_final=Identity(_2, _42..._45).html`
+- `HCQNN4_ZZFM_full__r1_RA_rlinear_r1_adam_fc_final=Linear.html`
+- `HCQNN4_ZZFM_full__r1_RA_rlinear_r1_adamw_fc_final=Identity_42..._45.html`
+- `RESULTADO QUE ORIGINA Hybrid_CNN_QNN_ampliado.html` — resultado de
+  referencia que motivó ampliar este testbed a partir del prototipo original.
+
+## 2. Reproducibilidad multi-semilla del HQVAE (`test-hqvae/`)
+
+Sobre la configuración de 6 qubits con entrelazamiento completo en el feature
+map (`ZZFM_full`) y ansatz RealAmplitudes lineal, se repite el entrenamiento
+con **AdamW** para `latent_dim ∈ {6, 12}` y semillas `42`–`46`, para evaluar
+la estabilidad de las métricas de reconstrucción (MSE/PSNR/SSIM) entre
+ejecuciones:
+
+- `HQVAE6_ZZFM_full_RA_linear_r1_adamw_12_42..._46.html`
+- `HQVAE6_ZZFM_full_RA_linear_r1_adamw_6_42..._44.html`
+
+Se conservan además todos los resultados de `experiment-3` (barrido de
+`latent_dim` y optimizadores con SPSA/Adam/AdamW/RMSprop a `latent_dim=12`).
+
+## Historial de esta rama
+
+- **`first experiment finished`**, **`experiment-2 tested (spsa, seed 43)`**,
+  **`removed before experiment html results`**, **`tested different latent
+  dims with spsa`**, **`HQVAE6_ZZFM_RA_linear_r1_rmsprop_12`**,
+  **`HQVAE6_ZZFM_RA_linear_r1_spsa_12`** *(heredados)*: base común y estudio
+  de `latent_dim`/optimizadores del HQVAE (ver READMEs de `experiment-1` a
+  `experiment-3`).
+- **`testbed de hybrid cnn-qnn copy.ipynb`**: añade el nuevo testbed de
+  clasificación `test-hcqnn/` con los notebooks `Hybrid CNN-QNN.ipynb` y
+  `Hybrid CNN-QNN copy.ipynb`.
+- **`test bed de hybrid cnn-qnn.ipynb good experiments`**: desarrolla el
+  diagnóstico del sesgo de la QNN y la corrección con `fc_final=Linear`;
+  añade los primeros resultados del barrido PFM/ZZFM × ESU/RA ×
+  Identity/Linear y su exportación a HTML.
+- **`several tests cqnn and vqae`**: elimina el prototipo `Hybrid
+  CQNN-VQAE.ipynb` (ya superado por `test-hcqnn/` y `test-hqvae/`); añade las
+  repeticiones multi-semilla (42–45) de la HQNN corregida y (42–46) del HQVAE
+  con AdamW a `latent_dim` 6 y 12.
 
 ## Entorno
 
-Requiere **Qiskit 2.3 + qiskit-machine-learning 0.9** (notebooks 01–02) y además
-**torch + torchvision** (notebook 03), tal como en `../requirements.txt` /
-`../../TFM-EXPERIMENTS/requirements.txt`.
-
-> Nota: el `../.venv` incluido apunta a un intérprete de otra máquina y no es
-> reutilizable aquí; crea un entorno nuevo (p. ej. `py -3.12 -m venv .venv` y
-> `pip install -r ../../TFM-EXPERIMENTS/requirements.txt`) o usa tu kernel habitual.
-
-## Salidas
-
-Se escriben con la convención estable `E6_*` en `../../TFM-EXPERIMENTS/outputs/`
-(la memoria `.tex` las referencia). `OUTPUT_DIR` es configurable al inicio de cada notebook.
-
-- Tablas: `E6_circuit_descriptors.csv`, `E6_expressibility.csv`, `E6_entangling.csv`,
-  `E6_paper_reference.csv`, `E6_metric_vs_accuracy.csv`.
-- Figuras (300 dpi): `E6_expressibility_bars.png`, `E6_entangling_bars.png`,
-  `E6_expressibility_vs_reps.png`, `E6_fidelity_histograms.png`,
-  `E6_paper_reference.png`, `E6_expr_vs_accuracy.png`, `E6_ent_vs_accuracy.png`.
-
-## Parámetros de ejecución
-
-`N_SAMPLES` (muestras de fidelidad; el paper usa ~5000, por defecto 2000–3000 para
-rapidez) y, en el notebook 03, `EPOCHS` y `CONFIGS`. Súbelos para las cifras finales.
-
-## Verificación realizada
-
-`qexpr.py` y la lógica de 01/02 se probaron en un entorno Qiskit 2.3.0 + qml 0.9.0:
-- Circuito de producción (zz+RealAmplitudes 4q): `D_KL≈0.06`, `Q≈0.83`.
-- Circuito 1 (sin entanglement): `Q=0.000`; CRX (14) más expresivo y más entrelazante que CRZ (13).
-- Las 6 QNN del notebook 03 se construyen y hacen `forward` con salida de 3 clases.
+Igual que en las ramas anteriores: **Qiskit 2.3 + qiskit-machine-learning 0.9**
+y **torch + torchvision**, según `requirements.txt`.
