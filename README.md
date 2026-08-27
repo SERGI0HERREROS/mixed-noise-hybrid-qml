@@ -11,7 +11,10 @@ código experimental**, solo los ficheros comunes a todo el proyecto
 (dependencias, configuración de entorno y este README). El trabajo
 experimental real —notebooks, módulos de circuitos cuánticos, barridos de
 hiperparámetros y resultados— vive en las ramas `experiment-1` a
-`experiment-5`, cada una construida incrementalmente sobre la anterior.
+`experiment-6`, cada una construida incrementalmente sobre la anterior.
+
+Cada rama experimental documenta su propio contenido en su README. La tabla
+siguiente sirve como índice.
 
 ## Ramas experimentales
 
@@ -22,6 +25,20 @@ hiperparámetros y resultados— vive en las ramas `experiment-1` a
 | [`experiment-3`](../../tree/experiment-3) | Barrido sistemático de dimensión latente (4/8/12) con SPSA y comparación de optimizadores (Adam, AdamW, RMSprop, SPSA) sobre el HQVAE de 6 qubits. |
 | [`experiment-4`](../../tree/experiment-4) | Testbed dedicado del clasificador híbrido (HQNN): diagnóstico y corrección de un sesgo en la capa de lectura, comparación con baseline clásico, y repeticiones multi-semilla (42-46) de clasificación y reconstrucción. |
 | [`experiment-5`](../../tree/experiment-5) | Análisis de explicabilidad (XAI: Saliency, Integrated Gradients, Grad-CAM, Occlusion, LIME, SHAP) comparando el modelo híbrido frente a su contrapartida clásica, tanto en clasificación como en reconstrucción. |
+| [`experiment-6`](../../tree/experiment-6) | Réplica sobre **CIFAR-100** de los experimentos de reconstrucción y explicabilidad, como control de validez de los resultados obtenidos en MNIST. Notebooks implementados y verificados, aún sin ejecutar. |
+
+## Nota sobre los datasets
+
+Los experimentos de las ramas `experiment-1` a `experiment-5` se realizan sobre
+**MNIST**. La rama `experiment-6` replica parte de ellos sobre **CIFAR-100** por
+una razón concreta: en MNIST cerca del 80 % de los píxeles son fondo negro
+exacto, donde el speckle (`x + x·η`) no tiene ningún efecto mientras que la sal
+y pimienta resulta muy visible. Eso ofrece al clasificador un atajo —mirar si el
+fondo está sucio— que no requiere aprender las estadísticas del ruido y que
+desaparece en imágenes naturales.
+
+En ambos casos la etiqueta del problema es el **tipo de ruido mixto** (tres
+clases); las 100 categorías de CIFAR-100 no se utilizan.
 
 ## Historial de esta rama
 
@@ -38,3 +55,7 @@ Dependencias comunes en `requirements.txt` (Qiskit 2.x, qiskit-machine-learning,
 numpy/pandas/matplotlib, scikit-learn, scikit-image, pylatexenc). PyTorch se
 instala aparte según el hardware disponible (CPU o CUDA), como se indica en el
 propio fichero.
+
+Las ramas con estudios de explicabilidad (`experiment-5` y `experiment-6`)
+requieren además `captum`, `lime` y `shap`, que no figuran en
+`requirements.txt` y hay que instalar por separado.
