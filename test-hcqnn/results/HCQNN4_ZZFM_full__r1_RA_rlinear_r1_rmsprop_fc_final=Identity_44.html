@@ -8180,26 +8180,9 @@ torch.Size([32])
 <span class="c1"># from qiskit.circuit.library import ZZFeatureMap</span>
 
 
-    <span class="c1"># ExperimentConfig(</span>
-    <span class="c1">#     name="A4",</span>
-    <span class="c1">#     n_qubits=4,</span>
-    <span class="c1">#     feature_map="pauli",</span>
-    <span class="c1">#     ansatz="efficient_su2",</span>
-    <span class="c1">#     observable_mode="z_individual",</span>
-    <span class="c1"># ),</span>
-
-<span class="c1"># observables = [</span>
-<span class="c1">#     SparsePauliOp.from_list([("ZZII", 1.0)]),</span>
-<span class="c1">#     SparsePauliOp.from_list([("IZZI", 1.0)]),</span>
-<span class="c1">#     SparsePauliOp.from_list([("IIZZ", 1.0)]),</span>
-<span class="c1">#     # SparsePauliOp.from_list([("IIIZ", 1.0)]),</span>
-<span class="c1"># ]</span>
-
-
 <span class="n">observables</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="c1"># SparsePauliOp.from_list([("ZIII", 1.0), ("IZII", 1.0)]),</span>
+    <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">from_list</span><span class="p">([(</span><span class="s2">"ZIII"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="s2">"IZII"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]),</span>
     <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">from_list</span><span class="p">([(</span><span class="s2">"ZZII"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]),</span>
-    <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">from_list</span><span class="p">([(</span><span class="s2">"IZZI"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]),</span>
     <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">from_list</span><span class="p">([(</span><span class="s2">"IIZZ"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)])</span>
 <span class="p">]</span> <span class="c1"># mejor resultado</span>
 
@@ -8518,19 +8501,13 @@ torch.Size([32])
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Epoch 1/10 | Train Loss: 1.1040 | Train Acc: 0.3500 | Val Loss: 1.1033 | Val Acc: 0.3400
-Epoch 2/10 | Train Loss: 1.0963 | Train Acc: 0.3700 | Val Loss: 1.1023 | Val Acc: 0.3500
-Epoch 3/10 | Train Loss: 1.0973 | Train Acc: 0.3700 | Val Loss: 1.1018 | Val Acc: 0.3500
-Epoch 4/10 | Train Loss: 1.0969 | Train Acc: 0.3700 | Val Loss: 1.1017 | Val Acc: 0.3500
-Epoch 5/10 | Train Loss: 1.0979 | Train Acc: 0.3700 | Val Loss: 1.1020 | Val Acc: 0.3500
-Epoch 6/10 | Train Loss: 1.0958 | Train Acc: 0.3700 | Val Loss: 1.1018 | Val Acc: 0.3500
-Epoch 7/10 | Train Loss: 1.0962 | Train Acc: 0.3700 | Val Loss: 1.1002 | Val Acc: 0.3500
-Epoch 8/10 | Train Loss: 1.0958 | Train Acc: 0.3700 | Val Loss: 1.1016 | Val Acc: 0.3500
-Epoch 9/10 | Train Loss: 1.0969 | Train Acc: 0.3700 | Val Loss: 1.1013 | Val Acc: 0.3500
-Epoch 10/10 | Train Loss: 1.0965 | Train Acc: 0.3700 | Val Loss: 1.1012 | Val Acc: 0.3400
+<pre>Epoch 1/10 | Train Loss: 1.0988 | Train Acc: 0.3900 | Val Loss: 1.1215 | Val Acc: 0.3500
+Epoch 2/10 | Train Loss: 1.1035 | Train Acc: 0.3767 | Val Loss: 1.1375 | Val Acc: 0.3500
+Epoch 3/10 | Train Loss: 1.1370 | Train Acc: 0.3700 | Val Loss: 1.1311 | Val Acc: 0.3500
+Epoch 4/10 | Train Loss: 1.1300 | Train Acc: 0.3700 | Val Loss: 1.1243 | Val Acc: 0.3500
 Early stopping.
-Tiempo de entrenamiento: 525.24 segundos
-Tiempo en minutos y segundos: 8 minutos y 45 segundos
+Tiempo de entrenamiento: 208.29 segundos
+Tiempo en minutos y segundos: 3 minutos y 28 segundos
 </pre>
 </div>
 </div>
@@ -8688,12 +8665,12 @@ sobre un batch real, para contrastar esta hipótesis antes de sacar conclusiones
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>Salida cruda de la QNN (antes de entrenar), por observable:
-  Mínimo : [-0.30378637 -0.29829577 -0.24075788]
-  Máximo : [ 0.19934554 -0.04696951  0.01520554]
-  Media  : [-0.0995052  -0.1378072  -0.13551752]
-  Desv.  : [0.09048679 0.06179957 0.05685271]
+  Mínimo : [-0.5231     -0.46257034  0.10328654]
+  Máximo : [-0.07637265  0.22460401  0.45788285]
+  Media  : [-0.2499921  -0.10104446  0.2617801 ]
+  Desv.  : [0.10410842 0.18319716 0.09277543]
 
-Predicción mayoritaria si no se entrenara nada más: [13 15  4]
+Predicción mayoritaria si no se entrenara nada más: [ 0  2 30]
 </pre>
 </div>
 </div>
@@ -8884,17 +8861,17 @@ innecesariamente su rango dinámico.</p>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Epoch 1/10 | Train Loss: 1.1851 | Train Acc: 0.3000 | Val Loss: 1.0907 | Val Acc: 0.3500
-Epoch 2/10 | Train Loss: 1.0629 | Train Acc: 0.3700 | Val Loss: 1.0985 | Val Acc: 0.3100
-Epoch 3/10 | Train Loss: 1.0563 | Train Acc: 0.4200 | Val Loss: 1.0970 | Val Acc: 0.3300
-Epoch 4/10 | Train Loss: 0.9560 | Train Acc: 0.5000 | Val Loss: 1.0715 | Val Acc: 0.3500
-Epoch 5/10 | Train Loss: 0.9157 | Train Acc: 0.5633 | Val Loss: 0.8565 | Val Acc: 0.5300
-Epoch 6/10 | Train Loss: 0.8421 | Train Acc: 0.6100 | Val Loss: 0.7953 | Val Acc: 0.6600
-Epoch 7/10 | Train Loss: 0.7988 | Train Acc: 0.6633 | Val Loss: 0.8904 | Val Acc: 0.8300
-Epoch 8/10 | Train Loss: 0.7393 | Train Acc: 0.7933 | Val Loss: 0.6979 | Val Acc: 0.6700
-Epoch 9/10 | Train Loss: 0.6941 | Train Acc: 0.7800 | Val Loss: 0.5963 | Val Acc: 0.9900
-Epoch 10/10 | Train Loss: 0.5468 | Train Acc: 0.9100 | Val Loss: 0.5802 | Val Acc: 0.8500
-Tiempo de entrenamiento: 0.72 segundos
+<pre>Epoch 1/10 | Train Loss: 1.3563 | Train Acc: 0.2833 | Val Loss: 1.0992 | Val Acc: 0.3100
+Epoch 2/10 | Train Loss: 1.0999 | Train Acc: 0.3200 | Val Loss: 1.0990 | Val Acc: 0.3100
+Epoch 3/10 | Train Loss: 1.0991 | Train Acc: 0.3200 | Val Loss: 1.0988 | Val Acc: 0.3100
+Epoch 4/10 | Train Loss: 1.0987 | Train Acc: 0.3200 | Val Loss: 1.0987 | Val Acc: 0.3100
+Epoch 5/10 | Train Loss: 1.0985 | Train Acc: 0.3333 | Val Loss: 1.0986 | Val Acc: 0.3500
+Epoch 6/10 | Train Loss: 1.0983 | Train Acc: 0.3700 | Val Loss: 1.0985 | Val Acc: 0.3500
+Epoch 7/10 | Train Loss: 1.0982 | Train Acc: 0.3700 | Val Loss: 1.0985 | Val Acc: 0.3500
+Epoch 8/10 | Train Loss: 1.0979 | Train Acc: 0.3700 | Val Loss: 1.0984 | Val Acc: 0.3500
+Epoch 9/10 | Train Loss: 1.0978 | Train Acc: 0.3700 | Val Loss: 1.0985 | Val Acc: 0.3500
+Epoch 10/10 | Train Loss: 1.0976 | Train Acc: 0.3700 | Val Loss: 1.0984 | Val Acc: 0.3500
+Tiempo de entrenamiento: 0.77 segundos
 </pre>
 </div>
 </div>
@@ -8948,23 +8925,35 @@ Tiempo de entrenamiento: 0.72 segundos
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>Confusion Matrix (CNN clásica):
-[[25  5  0]
+[[ 0 30  0]
  [ 0 32  0]
- [ 0 13 25]]
+ [ 0 38  0]]
 
 Classification Report (CNN clásica):
                      precision    recall  f1-score   support
 
-   gaussian+speckle       1.00      0.83      0.91        30
-gaussian+saltpepper       0.64      1.00      0.78        32
- saltpepper+speckle       1.00      0.66      0.79        38
+   gaussian+speckle       0.00      0.00      0.00        30
+gaussian+saltpepper       0.32      1.00      0.48        32
+ saltpepper+speckle       0.00      0.00      0.00        38
 
-           accuracy                           0.82       100
-          macro avg       0.88      0.83      0.83       100
-       weighted avg       0.88      0.82      0.82       100
+           accuracy                           0.32       100
+          macro avg       0.11      0.33      0.16       100
+       weighted avg       0.10      0.32      0.16       100
 
 
-Test Accuracy (CNN clásica): 0.8200
+Test Accuracy (CNN clásica): 0.3200
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>c:\Users\SergioHF\Desktop\Mi interés\Computación Quántica\Quanvolutional_NN_classify_reconstruct\.venv\Lib\site-packages\sklearn\metrics\_classification.py:1879: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, f"{metric.capitalize()} is", result.shape[0])
+c:\Users\SergioHF\Desktop\Mi interés\Computación Quántica\Quanvolutional_NN_classify_reconstruct\.venv\Lib\site-packages\sklearn\metrics\_classification.py:1879: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, f"{metric.capitalize()} is", result.shape[0])
+c:\Users\SergioHF\Desktop\Mi interés\Computación Quántica\Quanvolutional_NN_classify_reconstruct\.venv\Lib\site-packages\sklearn\metrics\_classification.py:1879: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, f"{metric.capitalize()} is", result.shape[0])
 </pre>
 </div>
 </div>
@@ -9011,8 +9000,8 @@ stopping</em>), para facilitar su traslado directo a la tabla comparativa del TF
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>Modelo                  Test Accuracy    Tiempo (s)
 ---------------------------------------------------
-HQNN (original)                0.3200        525.24
-CNN clásica                    0.8200          0.72
+HQNN (original)                0.3200        208.29
+CNN clásica                    0.3200          0.77
 </pre>
 </div>
 </div>

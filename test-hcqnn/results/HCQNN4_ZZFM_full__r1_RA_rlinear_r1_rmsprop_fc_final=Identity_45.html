@@ -7881,7 +7881,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
@@ -8180,26 +8180,9 @@ torch.Size([32])
 <span class="c1"># from qiskit.circuit.library import ZZFeatureMap</span>
 
 
-    <span class="c1"># ExperimentConfig(</span>
-    <span class="c1">#     name="A4",</span>
-    <span class="c1">#     n_qubits=4,</span>
-    <span class="c1">#     feature_map="pauli",</span>
-    <span class="c1">#     ansatz="efficient_su2",</span>
-    <span class="c1">#     observable_mode="z_individual",</span>
-    <span class="c1"># ),</span>
-
-<span class="c1"># observables = [</span>
-<span class="c1">#     SparsePauliOp.from_list([("ZZII", 1.0)]),</span>
-<span class="c1">#     SparsePauliOp.from_list([("IZZI", 1.0)]),</span>
-<span class="c1">#     SparsePauliOp.from_list([("IIZZ", 1.0)]),</span>
-<span class="c1">#     # SparsePauliOp.from_list([("IIIZ", 1.0)]),</span>
-<span class="c1"># ]</span>
-
-
 <span class="n">observables</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="c1"># SparsePauliOp.from_list([("ZIII", 1.0), ("IZII", 1.0)]),</span>
+    <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">from_list</span><span class="p">([(</span><span class="s2">"ZIII"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="s2">"IZII"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]),</span>
     <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">from_list</span><span class="p">([(</span><span class="s2">"ZZII"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]),</span>
-    <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">from_list</span><span class="p">([(</span><span class="s2">"IZZI"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]),</span>
     <span class="n">SparsePauliOp</span><span class="o">.</span><span class="n">from_list</span><span class="p">([(</span><span class="s2">"IIZZ"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)])</span>
 <span class="p">]</span> <span class="c1"># mejor resultado</span>
 
@@ -8518,18 +8501,18 @@ torch.Size([32])
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Epoch 1/10 | Train Loss: 1.1093 | Train Acc: 0.3200 | Val Loss: 1.0946 | Val Acc: 0.3700
-Epoch 2/10 | Train Loss: 1.0965 | Train Acc: 0.3433 | Val Loss: 1.0885 | Val Acc: 0.3200
-Epoch 3/10 | Train Loss: 1.0751 | Train Acc: 0.3933 | Val Loss: 1.1207 | Val Acc: 0.4200
-Epoch 4/10 | Train Loss: 1.0710 | Train Acc: 0.4567 | Val Loss: 1.0947 | Val Acc: 0.3400
-Epoch 5/10 | Train Loss: 1.0723 | Train Acc: 0.4500 | Val Loss: 1.0856 | Val Acc: 0.3600
-Epoch 6/10 | Train Loss: 1.0424 | Train Acc: 0.4633 | Val Loss: 1.0393 | Val Acc: 0.4600
-Epoch 7/10 | Train Loss: 1.0420 | Train Acc: 0.4867 | Val Loss: 1.0705 | Val Acc: 0.3500
-Epoch 8/10 | Train Loss: 1.0219 | Train Acc: 0.5133 | Val Loss: 1.0764 | Val Acc: 0.3100
-Epoch 9/10 | Train Loss: 1.0222 | Train Acc: 0.5333 | Val Loss: 0.9521 | Val Acc: 0.6200
-Epoch 10/10 | Train Loss: 0.9863 | Train Acc: 0.5900 | Val Loss: 0.9790 | Val Acc: 0.6100
-Tiempo de entrenamiento: 517.28 segundos
-Tiempo en minutos y segundos: 8 minutos y 37 segundos
+<pre>Epoch 1/10 | Train Loss: 1.0977 | Train Acc: 0.3767 | Val Loss: 1.1386 | Val Acc: 0.3000
+Epoch 2/10 | Train Loss: 1.1310 | Train Acc: 0.3300 | Val Loss: 1.1337 | Val Acc: 0.3000
+Epoch 3/10 | Train Loss: 1.1289 | Train Acc: 0.3300 | Val Loss: 1.1306 | Val Acc: 0.3000
+Epoch 4/10 | Train Loss: 1.1262 | Train Acc: 0.3300 | Val Loss: 1.1254 | Val Acc: 0.3000
+Epoch 5/10 | Train Loss: 1.1233 | Train Acc: 0.3300 | Val Loss: 1.1219 | Val Acc: 0.3000
+Epoch 6/10 | Train Loss: 1.1218 | Train Acc: 0.3300 | Val Loss: 1.1208 | Val Acc: 0.3000
+Epoch 7/10 | Train Loss: 1.1201 | Train Acc: 0.3300 | Val Loss: 1.1195 | Val Acc: 0.3000
+Epoch 8/10 | Train Loss: 1.1207 | Train Acc: 0.3300 | Val Loss: 1.1198 | Val Acc: 0.3000
+Epoch 9/10 | Train Loss: 1.1186 | Train Acc: 0.3300 | Val Loss: 1.1191 | Val Acc: 0.3000
+Epoch 10/10 | Train Loss: 1.1176 | Train Acc: 0.3300 | Val Loss: 1.1141 | Val Acc: 0.3000
+Tiempo de entrenamiento: 522.03 segundos
+Tiempo en minutos y segundos: 8 minutos y 42 segundos
 </pre>
 </div>
 </div>
@@ -8588,23 +8571,23 @@ Tiempo en minutos y segundos: 8 minutos y 37 segundos
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>Confusion Matrix:
-[[28  1  0]
- [ 0 34  0]
- [ 0 37  0]]
+[[29  0  0]
+ [34  0  0]
+ [37  0  0]]
 
 Classification Report:
                      precision    recall  f1-score   support
 
-   gaussian+speckle       1.00      0.97      0.98        29
-gaussian+saltpepper       0.47      1.00      0.64        34
+   gaussian+speckle       0.29      1.00      0.45        29
+gaussian+saltpepper       0.00      0.00      0.00        34
  saltpepper+speckle       0.00      0.00      0.00        37
 
-           accuracy                           0.62       100
-          macro avg       0.49      0.66      0.54       100
-       weighted avg       0.45      0.62      0.50       100
+           accuracy                           0.29       100
+          macro avg       0.10      0.33      0.15       100
+       weighted avg       0.08      0.29      0.13       100
 
 
-Test Accuracy: 0.6200
+Test Accuracy: 0.2900
 </pre>
 </div>
 </div>
@@ -8687,12 +8670,12 @@ sobre un batch real, para contrastar esta hipótesis antes de sacar conclusiones
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>Salida cruda de la QNN (antes de entrenar), por observable:
-  Mínimo : [ 0.06439682 -0.30662155 -0.13036543]
-  Máximo : [0.7157807  0.4132027  0.06503685]
-  Media  : [ 0.53914654  0.14337613 -0.03007538]
-  Desv.  : [0.12430856 0.14617321 0.05540039]
+  Mínimo : [-0.552962    0.11591711 -0.15177515]
+  Máximo : [0.07176158 0.70195216 0.07959764]
+  Media  : [-0.20877534  0.5365648  -0.02715572]
+  Desv.  : [0.13182852 0.11897924 0.05926086]
 
-Predicción mayoritaria si no se entrenara nada más: [32]
+Predicción mayoritaria si no se entrenara nada más: [ 0 32]
 </pre>
 </div>
 </div>
@@ -8893,7 +8876,7 @@ Epoch 7/10 | Train Loss: 1.1412 | Train Acc: 0.3167 | Val Loss: 1.1183 | Val Acc
 Epoch 8/10 | Train Loss: 1.1388 | Train Acc: 0.3167 | Val Loss: 1.1166 | Val Acc: 0.3800
 Epoch 9/10 | Train Loss: 1.1366 | Train Acc: 0.3167 | Val Loss: 1.1151 | Val Acc: 0.3800
 Epoch 10/10 | Train Loss: 1.1346 | Train Acc: 0.3167 | Val Loss: 1.1138 | Val Acc: 0.3800
-Tiempo de entrenamiento: 0.69 segundos
+Tiempo de entrenamiento: 0.68 segundos
 </pre>
 </div>
 </div>
@@ -9022,8 +9005,8 @@ stopping</em>), para facilitar su traslado directo a la tabla comparativa del TF
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>Modelo                  Test Accuracy    Tiempo (s)
 ---------------------------------------------------
-HQNN (original)                0.6200        517.28
-CNN clásica                    0.3700          0.69
+HQNN (original)                0.2900        522.03
+CNN clásica                    0.3700          0.68
 </pre>
 </div>
 </div>
