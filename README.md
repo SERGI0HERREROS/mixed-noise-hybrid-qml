@@ -31,19 +31,91 @@ Ambas implementadas en `qexpr.py` con solo `qiskit.quantum_info` (sin dependenci
 
 ### Contenido
 
-| Fichero | Qué hace |
-|---|---|
-| `qexpr.py` | Módulo con `build_pqc`, `sample_fidelities`, `expressibility_kl`, `meyer_wallach_Q`, `descriptors`, `paper_circuit` y ayudas de figura. |
-| `01_expressibility_entangling.ipynb` | Métricas del circuito de producción + grid E6 (`{zz,pauli}×{real_amplitudes,efficient_su2}×{4,6q}`) + saturación con `reps`. |
-| `02_paper_reference_circuits.ipynb` | Reproduce un subconjunto de los 19 circuitos del paper y valida el ranking (Q≈0 para el circuito sin entanglement, CRX≻CRZ). |
-| `03_metric_vs_accuracy.ipynb` | Entrena la HQNN (CNN+EstimatorQNN) por familia de circuito y correlaciona accuracy con expresibilidad y Q. |
+| Fichero | Qué hace | Estado |
+|---|---|---|
+| `qexpr.py` | Módulo con `build_pqc`, `sample_fidelities`, `expressibility_kl`, `meyer_wallach_Q`, `descriptors`, `paper_circuit` y ayudas de figura. | — |
+| `01_expressibility_entangling.ipynb` | Métricas del circuito de producción + grid E6 (`{zz,pauli}×{real_amplitudes,efficient_su2}×{4,6q}`) + saturación con `reps`. | **ejecutado por completo** |
+| `02_paper_reference_circuits.ipynb` | Reproduce un subconjunto de los 19 circuitos del paper y valida el ranking. | **ejecutado por completo** |
+| `03_metric_vs_accuracy.ipynb` | Entrena la HQNN (CNN+EstimatorQNN) por familia de circuito y correlaciona accuracy con expresibilidad y Q. | **sin ejecutar** (ver aviso) |
 
-### Verificación realizada
+### Resultados ejecutados
 
-`qexpr.py` y la lógica de 01/02 se probaron en un entorno Qiskit 2.3.0 + qml 0.9.0:
-- Circuito de producción (zz+RealAmplitudes 4q): `D_KL≈0.06`, `Q≈0.83`.
-- Circuito 1 (sin entanglement): `Q=0.000`; CRX (14) más expresivo y más entrelazante que CRZ (13).
-- Las 6 QNN del notebook 03 se construyen y hacen `forward` con salida de 3 clases.
+Las cifras siguientes se leen directamente de las salidas guardadas en los
+notebooks. Entorno de ejecución: **Google Colab**, Python 3.12, **Qiskit 2.5.0
++ qiskit-machine-learning 0.9.0**.
+
+#### Circuito de producción (`zz` + RealAmplitudes, 4 qubits, `reps=1`)
+
+`n_params = 12`, `depth = 22`, **`D_KL = 0.008928`**, **`Q = 0.834993 ± 0.101534`**
+(`N_SAMPLES = 2000`, `SEED` fijada).
+
+#### Rejilla E6 completa (`01_expressibility_entangling.ipynb`)
+
+| Circuito | n_params | depth | `D_KL` | `Q` |
+|---|---|---|---|---|
+| zz + RealAmplitudes (4q) | 12 | 22 | 0.008928 | 0.834993 ± 0.101534 |
+| zz + RealAmplitudes (6q) | 18 | 36 | 0.001004 | 0.949018 ± 0.039754 |
+| zz + EfficientSU2 (4q) | 20 | 24 | 0.007948 | 0.830142 ± 0.104298 |
+| zz + EfficientSU2 (6q) | 30 | 38 | 0.002525 | 0.949953 ± 0.036427 |
+| pauli + RealAmplitudes (4q) | 12 | 31 | 0.020220 | 0.630375 ± 0.177257 |
+| pauli + RealAmplitudes (6q) | 18 | 45 | 0.024332 | 0.761830 ± 0.125084 |
+| pauli + EfficientSU2 (4q) | 20 | 33 | 0.007032 | 0.698853 ± 0.163617 |
+| pauli + EfficientSU2 (6q) | 30 | 47 | 0.013429 | 0.800506 ± 0.111760 |
+
+Los mapas `zz` dominan a los `pauli` en las dos métricas a igualdad de qubits, y
+pasar de 4 a 6 qubits mejora ambas de forma sistemática.
+
+**Saturación con la profundidad** (`reps` de 1 a 5), midiendo el ansatz aislado y
+el circuito completo:
+
+| `reps` | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| `D_KL` (solo ansatz) | 0.310 | 0.181 | 0.131 | 0.110 | **0.141** |
+| `D_KL` (circuito completo) | 0.009 | 0.007 | 0.009 | 0.008 | 0.011 |
+
+La expresibilidad del ansatz mejora al añadir repeticiones pero deja de hacerlo
+a partir de `reps=4`: es el efecto de saturación que describen Sim et al., y el
+argumento por el que la configuración de producción usa `reps=1` (el circuito
+completo ya está saturado desde la primera repetición, porque el feature map
+aporta la mayor parte de la expresibilidad).
+
+#### Validación contra el paper (`02_paper_reference_circuits.ipynb`)
+
+Reimplementa 7 de los 19 circuitos de Sim et al. (`N_SAMPLES = 3000`):
+
+| Circuito | n_params | depth | `D_KL` | `Q` |
+|---|---|---|---|---|
+| 14 (CRX) | 16 | 37 | 0.026054 | 0.547 |
+| 13 (CRZ) | 16 | 28 | 0.058671 | 0.407 |
+| 19 | 12 | 23 | 0.082167 | 0.417 |
+| 15 | 8 | 10 | 0.186634 | 0.695 |
+| 1 (sin entanglement) | 8 | 2 | 0.311468 | ≈0 (−4.5e−18) |
+| 2 | 8 | 5 | 0.311468 | 0.625 |
+| 9 | 4 | 9 | 0.684732 | 1.000 |
+
+Resultado del bloque de comprobaciones: **4 / 4 superadas** — el circuito 1 no
+entrelaza (`Q ≈ 0`); CRX (14) entrelaza más que CRZ (13); CRX es más expresivo
+que CRZ; y CRX queda entre los tres más expresivos. El circuito 9 ilustra el
+caso extremo de `Q = 1` con expresibilidad baja: entrelaza al máximo pero sus
+4 parámetros no cubren el espacio de estados.
+
+Este notebook es lo que legitima usar `qexpr.py` como instrumento de medida: sin
+él, los descriptores de la rejilla anterior serían números sin contraste externo.
+
+> ### Aviso sobre `03_metric_vs_accuracy.ipynb`
+>
+> **Este notebook no está ejecutado.** Sus dos últimas celdas tienen
+> `execution_count = None`, y la primera de ellas no es Python válido:
+>
+> ```python
+> acc, m = train_eval(fm, (an, ent, reps)      # paréntesis sin cerrar
+> ```
+>
+> Además la llamada no respeta la firma de la función, que es
+> `train_eval(fm_name, an_name, an_entanglement, reps)`. En consecuencia **no
+> existe ninguna tabla de accuracy por familia de circuito ni ninguna
+> correlación descriptor–accuracy respaldada por una ejecución**, y nada de ese
+> estudio debe citarse hasta re-ejecutarlo.
 
 ## 2. Prototipo combinado: clasificación + reconstrucción (`Hybrid CQNN-VQAE.ipynb`)
 
@@ -53,15 +125,20 @@ ruido + *denoising*) sustituyendo parte del procesamiento por una QNN:
 - **Clasificación de ruido mixto** con una HQNN (CNN + `EstimatorQNN` de 4
   qubits, `zz_feature_map` + `real_amplitudes`). Esta sección se dejó como
   borrador (celdas comentadas) a la espera de fijar observables y `reps`; se
-  incluye a cambio una red **clásica equivalente** ya entrenada como referencia
-  (accuracy de test = 1.0 en 10 épocas).
+  incluye a cambio una red **clásica equivalente** ya entrenada como referencia,
+  que en 10 épocas llega a `Val Acc = 1.0000` (el notebook **no** evalúa sobre
+  el conjunto de test).
 - **Denoising con `ConvHQVAE`**: encoder/decoder convolucional + bloque
   cuántico (`EstimatorQNN` de 4 qubits, `pauli_feature_map` + `real_amplitudes`,
-  6 observables) en el espacio latente, con truco de reparametrización y
-  pérdida β-VAE (`BCE + β·KL`, β=0.5). Entrenado 15 épocas sobre 300/100/100
-  muestras; evaluado con **MSE** (≈0.066) y **PSNR** (≈11.8 dB). El cálculo de
+  6 observables) en el espacio latente, con `latent_dim=4`, truco de
+  reparametrización y pérdida β-VAE (`BCE + β·KL`, β=0.5), sobre 300/100/100
+  muestras. Evaluado con **MSE** (0.0659) y **PSNR** (11.81 dB). El cálculo de
   **SSIM** quedó pendiente por falta de la dependencia `scikit-image` en el
   entorno de ejecución.
+
+  > La celda está configurada con `EPOCHS = 15`, pero el registro que conserva
+  > el notebook solo llega a la época 2; las métricas finales sí corresponden a
+  > un modelo entrenado.
 
 Este notebook es el punto de partida que después se separa en dos testbeds
 dedicados (`test-hcqnn/` para clasificación, `test-hqvae/` para reconstrucción)
@@ -79,7 +156,24 @@ autocontenido en `test-hqvae/results/`.
 | `test-hqvae/hqvae_lib.py` | Código reutilizable: ruido mixto, dataset de denoising, `ConvVAE`, `ConvHQVAE`, entrenamiento, métricas, informes HTML y el barrido (`default_sweep`). |
 | `test-hqvae/test_hqvae.ipynb` | Notebook driver: setup → datos → run único → barrido (4 y 6 qubits) → comparación de optimizadores → export nbconvert. |
 | `test-hqvae/README.md` | Documentación detallada del testbed (arquitectura, barrido por defecto, convención de nombres). |
-| `test-hqvae/results/` | Resultados del barrido inicial: 6 configuraciones de circuito (`HQVAE4_PFM_RA_linear_r1`, `HQVAE4_ZZFM_RA_linear_r1`, `HQVAE6_ZZFM_ESU2_linear_r1`, `HQVAE6_ZZFM_RA_full_r1`, `HQVAE6_ZZFM_RA_linear_r1`, `HQVAE6_ZZFM_RA_linear_r2`) + comparación de optimizadores (`cobyla`, `rmsprop`, `sgd`, `spsa`) sobre la configuración base, más `sweep_metrics.csv` con las métricas agregadas. |
+| `test-hqvae/results/` | Barrido de 6 configuraciones de circuito (`HQVAE4_PFM_RA_linear_r1`, `HQVAE4_ZZFM_RA_linear_r1`, `HQVAE6_ZZFM_ESU2_linear_r1`, `HQVAE6_ZZFM_RA_full_r1`, `HQVAE6_ZZFM_RA_linear_r1`, `HQVAE6_ZZFM_RA_linear_r2`) + comparación de optimizadores (`cobyla`, `rmsprop`, `sgd`, `spsa`) sobre la configuración base, más `sweep_metrics.csv` con las métricas agregadas. |
+
+Dos advertencias necesarias para leer estos artefactos:
+
+- **El barrido de circuitos hay que citarlo desde `sweep_metrics.csv`, no desde
+  `HQVAE6_ZZFM_RA_linear_r1.html`.** La comparación de optimizadores se lanzó
+  después con `train_baseline=False`, y su iteración `adam` **sobrescribió** ese
+  HTML: el fichero muestra 0.0427 / 14.0168 / 0.4973 y ya no incluye la columna
+  del ConvVAE, mientras que la fila homónima del CSV —la del barrido de
+  circuitos, con baseline— es 0.042294 / 14.060 / 0.503226.
+- **`sgd` ignora `cfg.lr`**: `_make_optimizer` fija `lr=1e-4, momentum=0.9` para
+  esa rama, así que su comparación con el resto de optimizadores no es a
+  igualdad de tasa de aprendizaje.
+
+COBYLA y SPSA no son entrenamientos de una sola fase: hacen primero un warm-up
+completo con Adam y después 45 iteraciones sin gradiente **solo sobre los pesos
+del ansatz**, minimizando la pérdida de validación con el resto de la red
+congelada.
 
 ## Historial de esta rama
 
@@ -90,11 +184,12 @@ autocontenido en `test-hqvae/results/`.
 
 ## Entorno
 
-Requiere **Qiskit 2.3 + qiskit-machine-learning 0.9** (notebooks 01–02) y además
-**torch + torchvision** (notebook 03 y los testbeds), tal como en
-`requirements.txt`. Para las métricas SSIM del testbed HQVAE se necesita
-además `scikit-image` (ya listado en `requirements.txt`, pero ausente en el
-entorno donde se ejecutó `Hybrid CQNN-VQAE.ipynb`).
+`requirements.txt` no fija versiones. Las ejecuciones registradas en los
+notebooks 01–02 corresponden a **Qiskit 2.5.0 + qiskit-machine-learning 0.9.0**
+sobre **Python 3.12** en Google Colab, con **torch 2.11 + torchvision 0.26**
+para el notebook 03 y los testbeds. Para las métricas SSIM del testbed HQVAE se
+necesita además `scikit-image` (ya listado en `requirements.txt`, pero ausente
+en el entorno donde se ejecutó `Hybrid CQNN-VQAE.ipynb`).
 
 > Nota: el `.venv` incluido apunta a un intérprete de otra máquina y no es
 > reutilizable aquí; crea un entorno nuevo (p. ej. `py -3.12 -m venv .venv` y
@@ -102,9 +197,8 @@ entorno donde se ejecutó `Hybrid CQNN-VQAE.ipynb`).
 
 ## Salidas
 
-Los notebooks 01–03 escriben con la convención estable `E6_*` en
-`../TFM-EXPERIMENTS/outputs/` (la memoria `.tex` las referencia). `OUTPUT_DIR`
-es configurable al inicio de cada notebook.
+Los notebooks 01–03 escriben con la convención estable `E6_*` en el directorio
+que fije `OUTPUT_DIR` al inicio de cada uno.
 
 - Tablas: `E6_circuit_descriptors.csv`, `E6_expressibility.csv`, `E6_entangling.csv`,
   `E6_paper_reference.csv`, `E6_metric_vs_accuracy.csv`.
@@ -112,7 +206,14 @@ es configurable al inicio de cada notebook.
   `E6_expressibility_vs_reps.png`, `E6_fidelity_histograms.png`,
   `E6_paper_reference.png`, `E6_expr_vs_accuracy.png`, `E6_ent_vs_accuracy.png`.
 
+> **Estos ficheros no están versionados.** `OUTPUT_DIR` se resuelve fuera del
+> repositorio (en la ejecución guardada, `/TFM-EXPERIMENTS/outputs/`), de modo
+> que ningún CSV ni PNG de E6 forma parte de esta rama. Las cifras que la
+> memoria cita se leen de las salidas de los propios notebooks, no de esos
+> ficheros.
+
 ## Parámetros de ejecución
 
-`N_SAMPLES` (muestras de fidelidad; el paper usa ~5000, por defecto 2000–3000 para
-rapidez) y, en el notebook 03, `EPOCHS` y `CONFIGS`. Súbelos para las cifras finales.
+`N_SAMPLES` (muestras de fidelidad: 2000 en el notebook 01 y 3000 en el 02; el
+paper usa ~5000) y, en el notebook 03, `EPOCHS` y `CONFIGS`. Súbelos para las
+cifras finales.
