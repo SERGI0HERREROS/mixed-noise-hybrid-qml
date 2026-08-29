@@ -36,7 +36,7 @@ Ambas implementadas en `qexpr.py` con solo `qiskit.quantum_info` (sin dependenci
 | `qexpr.py` | Módulo con `build_pqc`, `sample_fidelities`, `expressibility_kl`, `meyer_wallach_Q`, `descriptors`, `paper_circuit` y ayudas de figura. | — |
 | `01_expressibility_entangling.ipynb` | Métricas del circuito de producción + grid E6 (`{zz,pauli}×{real_amplitudes,efficient_su2}×{4,6q}`) + saturación con `reps`. | **ejecutado por completo** |
 | `02_paper_reference_circuits.ipynb` | Reproduce un subconjunto de los 19 circuitos del paper y valida el ranking. | **ejecutado por completo** |
-| `03_metric_vs_accuracy.ipynb` | Entrena la HQNN (CNN+EstimatorQNN) por familia de circuito y correlaciona accuracy con expresibilidad y Q. | **sin ejecutar** (ver aviso) |
+| `03_metric_vs_accuracy.ipynb` | Entrena la HQNN (CNN+EstimatorQNN) por familia de circuito y correlaciona accuracy con expresibilidad y Q. | **ejecutado**, pero no re-ejecutable (ver aviso) |
 
 ### Resultados ejecutados
 
@@ -102,20 +102,47 @@ caso extremo de `Q = 1` con expresibilidad baja: entrelaza al máximo pero sus
 Este notebook es lo que legitima usar `qexpr.py` como instrumento de medida: sin
 él, los descriptores de la rejilla anterior serían números sin contraste externo.
 
-> ### Aviso sobre `03_metric_vs_accuracy.ipynb`
->
-> **Este notebook no está ejecutado.** Sus dos últimas celdas tienen
-> `execution_count = None`, y la primera de ellas no es Python válido:
+#### Descriptores frente a accuracy (`03_metric_vs_accuracy.ipynb`)
+
+Entrena un clasificador híbrido por familia de circuito —8 épocas, Adam a `1e-3`,
+semilla 42, 4 qubits, mismos observables y mismo extractor convolucional— y calcula
+los descriptores sobre el mismo objeto `QuantumCircuit` que usa la red:
+
+| Circuito | accuracy | `D_KL` | `Q` | n_params | depth |
+|---|---|---|---|---|---|
+| ZZFM + RA (rev_lin, r1) *[producción]* | 0.93 | 0.008928 | 0.834993 | 12 | 22 |
+| ZZFM + RA (full, r1) | 0.33 | 0.008928 | 0.834993 | 12 | 23 |
+| ZZFM + RA (rev_lin, r2) | 0.97 | 0.006976 | 0.832146 | 16 | 25 |
+| ZZFM + ESU2 (rev_lin, r1) | 0.68 | 0.007948 | 0.830142 | 20 | 24 |
+| PFM + RA (rev_lin, r1) | 0.34 | 0.020220 | 0.630375 | 12 | 31 |
+| PFM + ESU2 (rev_lin, r1) | 1.00 | 0.007032 | 0.698853 | 20 | 33 |
+
+Correlaciones de Pearson: **accuracy ~ `D_KL` = −0.659**, **accuracy ~ `Q` = 0.252**.
+Con n=6 ninguna es distinguible de cero (p = 0.16 y 0.63).
+
+Lo relevante no es la correlación sino las dos primeras filas. Para
+`RealAmplitudes` con `reps=1`, los entrelazamientos `full` y `reverse_linear`
+**implementan el mismo unitario con el mismo orden de parámetros** —el primero con
+6 CNOT y el segundo con 3—, y por eso sus descriptores coinciden hasta el sexto
+decimal. Sus accuracies son 0.93 y 0.33. Sesenta puntos de diferencia entre dos
+modelos que admiten exactamente el mismo conjunto de funciones aprendibles: eso no
+lo puede predecir ningún descriptor del circuito, y fija la escala del ruido de
+entrenamiento frente al que hay que leer cualquier comparación de arquitecturas.
+
+> **Aviso de reproducibilidad.** El notebook **sí tiene salidas ejecutadas**, pero
+> su celda del barrido fue editada después de correr y, tal como está guardada, no
+> es Python válido:
 >
 > ```python
 > acc, m = train_eval(fm, (an, ent, reps)      # paréntesis sin cerrar
 > ```
 >
-> Además la llamada no respeta la firma de la función, que es
-> `train_eval(fm_name, an_name, an_entanglement, reps)`. En consecuencia **no
-> existe ninguna tabla de accuracy por familia de circuito ni ninguna
-> correlación descriptor–accuracy respaldada por una ejecución**, y nada de ese
-> estudio debe citarse hasta re-ejecutarlo.
+> La llamada tampoco respeta la firma `train_eval(fm_name, an_name,
+> an_entanglement, reps)`. Los descriptores de la tabla coinciden dígito a dígito
+> con los del notebook 01, lo que confirma que los circuitos evaluados son los que
+> se dicen; pero el estudio **no se puede regenerar desde el repositorio** hasta
+> reparar esa celda. Conviene además repetirlo sobre varias semillas: con una sola
+> ejecución por fila, la varianza del entrenamiento domina el resultado.
 
 ## 2. Prototipo combinado: clasificación + reconstrucción (`Hybrid CQNN-VQAE.ipynb`)
 
