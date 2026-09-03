@@ -1,8 +1,14 @@
-# Quanvolutional_NN_classify_reconstruct
+# mixed-noise-hybrid-qml
 
 TFM sobre clasificación de ruido mixto y *denoising* de imágenes con modelos
 híbridos cuántico-clásicos (CNN + QNN variacional vía Qiskit/`EstimatorQNN`),
 comparados frente a sus contrapartidas puramente clásicas (CNN, ConvVAE).
+
+> Este repositorio se llamaba antes `Quanvolutional_NN_classify_reconstruct`. El
+> nombre se cambió porque la arquitectura no es *quanvolutional*: no aplica un
+> circuito de forma deslizante sobre parches de la imagen, sino un extractor
+> convolucional clásico seguido de un único circuito variacional sobre una
+> representación de baja dimensión. GitHub redirige el nombre antiguo.
 
 ## Estado de esta rama
 
