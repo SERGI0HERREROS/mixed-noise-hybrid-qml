@@ -1,0 +1,7 @@
+method,family,forward_passes,classical_s,hybrid_s,ratio
+Saliency,gradient,1,0.001102,0.179298,162.7
+Integrated Gradients,gradient,50,0.009654,8.180410,847.3
+Grad-CAM,activation,1,0.000943,0.184024,195.2
+SHAP (gradient),gradient,50,0.145189,99.255733,683.6
+Occlusion,perturbation,49,0.037622,0.317408,8.4
+LIME,perturbation,500,0.078816,2.296916,29.1
